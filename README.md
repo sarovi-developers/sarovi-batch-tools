@@ -1,12 +1,12 @@
-# Sarovi CSV tools
+# ابزارهای CSV ساروی
 
-Translate a CSV column or classify support messages with an AI model. Python standard library only. Dry-run first, preview offline, then process a small batch with a durable progress journal.
+ترجمهٔ یک ستون یا دسته‌بندی پیام‌های پشتیبانی با هوش مصنوعی؛ با کتابخانهٔ استاندارد Python، بدون نصب وابستگی. اول تعداد درخواست‌ها را ببینید، پیش‌نمایش محلی را امتحان کنید و بعد یک پردازش واقعی کوچک را شروع کنید.
 
-[فارسی](README.fa.md) · [Create a key](https://api.sarovi.site/developers/start?utm_source=github&utm_medium=organic&utm_campaign=developer_tools_202610&utm_content=sarovi-batch-tools_key) · [Models & pricing](https://api.sarovi.site/developers/pricing?utm_source=github&utm_medium=organic&utm_campaign=developer_tools_202610&utm_content=sarovi-batch-tools_pricing)
+[ساخت کلید API](https://api.sarovi.site/developers/start?utm_source=github&utm_medium=organic&utm_campaign=developer_tools_202610&utm_content=sarovi-batch-tools_key_fa) · [مدل‌ها و قیمت‌ها](https://api.sarovi.site/developers/pricing?utm_source=github&utm_medium=organic&utm_campaign=developer_tools_202610&utm_content=sarovi-batch-tools_pricing_fa) · [اولین درخواست](https://api.sarovi.site/developers/start?utm_source=github&utm_medium=organic&utm_campaign=developer_tools_202610&utm_content=sarovi-batch-tools_first_request_fa)
 
-## Try it without an API key
+## امتحان بدون کلید و هزینه
 
-Python 3.10+ is required.
+Python نسخهٔ ۳٫۱۰ به بالا لازم است.
 
 ```sh
 git clone https://github.com/sarovi-developers/sarovi-batch-tools.git
@@ -16,49 +16,53 @@ python3 batch.py translate samples/messages.csv --demo --output demo.results.jso
 python3 export_csv.py demo.results.jsonl demo.results.csv
 ```
 
-The first command reports the planned request count with zero network calls. Demo output is synthetic and labeled. The export creates a new CSV and escapes formula-leading output for spreadsheets.
+دستور اول فقط تعداد درخواست‌های برنامه‌ریزی‌شده را نشان می‌دهد و هیچ داده‌ای نمی‌فرستد. حالت `--demo` خروجی ساختگی مشخص دارد و اعتبار مصرف نمی‌کند. خروجی CSV در فایل تازه ایجاد می‌شود و متن‌هایی که ممکن است در صفحه‌گسترده فرمول شمرده شوند، ایمن می‌شوند.
 
-## Translate for real
+## ترجمهٔ واقعی
 
 ```sh
 export SAROVI_API_KEY="YOUR_SAROVI_API_KEY"
-python3 batch.py translate samples/messages.csv   --column text --target Persian --limit 5 --max-tokens 512   --output translation.results.jsonl --run
+python3 batch.py translate samples/messages.csv \
+  --column text --target Persian --limit 5 --max-tokens 512 \
+  --output translation.results.jsonl --run
 ```
 
-In PowerShell, use `$env:SAROVI_API_KEY="YOUR_SAROVI_API_KEY"`. Set `SAROVI_MODEL` to change models. `SAROVI_BASE_URL` can select either Sarovi domain.
+در PowerShell از `$env:SAROVI_API_KEY="YOUR_SAROVI_API_KEY"` استفاده کنید. مدل با `SAROVI_MODEL` و دامنهٔ API با `SAROVI_BASE_URL` قابل انتخاب است. هر دو دامنهٔ ساروی کار می‌کنند.
 
-Only the selected text cells are sent to the API. Real runs consume your account credits. Start with the sample file and a small key/project budget; the output-token cap does not guarantee a monetary ceiling.
+فقط متن سلول‌های ستون انتخاب‌شده به ساروی و ارائه‌دهندهٔ مدل فرستاده می‌شود. اجرای واقعی اعتبار مصرف می‌کند. با فایل نمونه و سقف مصرف کوچک کلید یا پروژه شروع کنید؛ محدودیت توکن، سقف پولی نیست.
 
-## Classify support messages
+## دسته‌بندی پیام‌ها
 
 ```sh
-python3 batch.py classify samples/messages.csv   --labels billing technical other --limit 5   --output labels.results.jsonl --run
+python3 batch.py classify samples/messages.csv \
+  --labels billing technical other --limit 5 \
+  --output labels.results.jsonl --run
 ```
 
-The tool records the returned label and marks an unexpected label as `valid_label: false`. It does not spend another request trying to repair it. Review AI labels before using them in an automated workflow.
+برچسب برگشتی ثبت می‌شود. اگر یکی از برچسب‌های مجاز نباشد، `valid_label: false` خواهد بود؛ برای اصلاح آن درخواست تازه‌ای مصرف نمی‌شود. پیش از استفادهٔ خودکار از برچسب‌ها، نتیجهٔ مدل را بررسی کنید.
 
-## Resume safely
+## ادامهٔ پردازش
 
-Run the same command with `--resume`. Completed rows are skipped, and settings/input hashes prevent mixing different jobs. The default is five non-empty rows; increase `--limit` explicitly, up to 100.
+همان دستور را با `--resume` اجرا کنید. ردیف‌های کامل تکرار نمی‌شوند و هش ورودی و تنظیمات مانع مخلوط شدن کارهای متفاوت می‌شود. پیش‌فرض پنج ردیف غیرخالی است؛ با `--limit` می‌توانید صریحاً تا ۱۰۰ ردیف انتخاب کنید.
 
-A pending or uncertain request stops the run and resume. Keep its journal and inspect its original billing metadata:
+اگر نتیجهٔ یک درخواست نامعلوم باشد، اجرا و ادامه متوقف می‌شود. فایل پیشرفت را نگه دارید و مصرف همان درخواست را پیگیری کنید:
 
 ```sh
 python3 receipt.py --idempotency-key=ORIGINAL_KEY
 ```
 
-Receipt reads need `usage:read`. Empty lookup results are not proof of no charge. No automatic resubmission or recovery charge is made. Run only one process against a journal at a time.
+پیگیری به دسترسی `usage:read` نیاز دارد. نتیجهٔ خالی ثابت نمی‌کند درخواست قبلی رایگان بوده است. ارسال مجدد یا هزینهٔ بازیابی خودکار انجام نمی‌شود. هر بار فقط یک پردازش را روی یک فایل پیشرفت اجرا کنید.
 
-The journal contains generated output; keep it private. The sample CSV is synthetic. Your original CSV is never overwritten. See [API notes](docs/API-NOTES.md) for provider retention, idempotency limits, and billing details.
+فایل پیشرفت حاوی خروجی تولیدشده است و ممکن است خصوصی باشد. فایل نمونه ساختگی است و CSV اصلی بازنویسی نمی‌شود. [نکته‌های API](docs/API-NOTES.md) را برای جزئیات هزینه، نگهداری داده و محدودیت پیگیری ببینید.
 
-## Checks
+## بررسی کد
 
 ```sh
 python3 -m unittest -v test_batch.py
 ```
 
-Tests cover zero-network dry-run, offline preview, completed-row deduplication, changed inputs, ambiguous requests, and limits. No paid test calls.
+آزمون‌ها اجرای بدون شبکه، پیش‌نمایش محلی، رد تکرار ردیف کامل، تغییر ورودی، درخواست نامعلوم و محدودیت‌ها را بررسی می‌کنند؛ درخواست پولی ندارند.
 
-[Complete your first API request](https://api.sarovi.site/developers/start?utm_source=github&utm_medium=organic&utm_campaign=developer_tools_202610&utm_content=sarovi-batch-tools_first_request) · [API cookbook](https://github.com/sarovi-developers/sarovi-api-cookbook)
+[نمونه‌کدهای بیشتر](https://github.com/sarovi-developers/sarovi-api-cookbook)
 
-MIT-licensed code. Sarovi API usage is billed separately.
+کد با مجوز [MIT](LICENSE.fa.md) منتشر شده است؛ مصرف API جداگانه محاسبه می‌شود.

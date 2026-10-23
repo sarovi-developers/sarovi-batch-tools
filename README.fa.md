@@ -1,8 +1,10 @@
 # ابزارهای CSV ساروی
 
-ترجمهٔ یک ستون یا دسته‌بندی پیام‌های پشتیبانی، با Python و بدون کتابخانهٔ اضافی. اول تعداد درخواست‌ها را ببینید، پیش‌نمایش محلی را امتحان کنید و بعد پردازش واقعی را شروع کنید.
+ترجمهٔ یک ستون یا دسته‌بندی پیام‌های پشتیبانی با هوش مصنوعی؛ با کتابخانهٔ استاندارد Python، بدون نصب وابستگی. اول تعداد درخواست‌ها را ببینید، پیش‌نمایش محلی را امتحان کنید و بعد یک پردازش واقعی کوچک را شروع کنید.
 
-[English](README.md) · [ساخت کلید API](https://api.sarovi.site/developers/start?utm_source=github&utm_medium=organic&utm_campaign=developer_tools_202610&utm_content=sarovi-batch-tools_key_fa) · [قیمت‌ها](https://api.sarovi.site/developers/pricing?utm_source=github&utm_medium=organic&utm_campaign=developer_tools_202610&utm_content=sarovi-batch-tools_pricing_fa)
+[ساخت کلید API](https://api.sarovi.site/developers/start?utm_source=github&utm_medium=organic&utm_campaign=developer_tools_202610&utm_content=sarovi-batch-tools_key_fa) · [مدل‌ها و قیمت‌ها](https://api.sarovi.site/developers/pricing?utm_source=github&utm_medium=organic&utm_campaign=developer_tools_202610&utm_content=sarovi-batch-tools_pricing_fa) · [اولین درخواست](https://api.sarovi.site/developers/start?utm_source=github&utm_medium=organic&utm_campaign=developer_tools_202610&utm_content=sarovi-batch-tools_first_request_fa)
+
+## امتحان بدون کلید و هزینه
 
 Python نسخهٔ ۳٫۱۰ به بالا لازم است.
 
@@ -14,21 +16,53 @@ python3 batch.py translate samples/messages.csv --demo --output demo.results.jso
 python3 export_csv.py demo.results.jsonl demo.results.csv
 ```
 
-دستور اول هیچ داده‌ای ارسال نمی‌کند؛ فقط برنامهٔ اجرا را نشان می‌دهد. demo خروجی ساختگی مشخص دارد و اعتبار مصرف نمی‌کند.
+دستور اول فقط تعداد درخواست‌های برنامه‌ریزی‌شده را نشان می‌دهد و هیچ داده‌ای نمی‌فرستد. حالت `--demo` خروجی ساختگی مشخص دارد و اعتبار مصرف نمی‌کند. خروجی CSV در فایل تازه ایجاد می‌شود و متن‌هایی که ممکن است در صفحه‌گسترده فرمول شمرده شوند، ایمن می‌شوند.
 
 ## ترجمهٔ واقعی
 
 ```sh
 export SAROVI_API_KEY="YOUR_SAROVI_API_KEY"
-python3 batch.py translate samples/messages.csv --target Persian --limit 5 --output translation.results.jsonl --run
+python3 batch.py translate samples/messages.csv \
+  --column text --target Persian --limit 5 --max-tokens 512 \
+  --output translation.results.jsonl --run
 ```
 
-فقط متن ستون انتخاب‌شده به ساروی و ارائه‌دهندهٔ مدل فرستاده می‌شود. برای کلید سقف مصرف کوچک بگذارید؛ محدودیت توکن، سقف پولی نیست.
+در PowerShell از `$env:SAROVI_API_KEY="YOUR_SAROVI_API_KEY"` استفاده کنید. مدل با `SAROVI_MODEL` و دامنهٔ API با `SAROVI_BASE_URL` قابل انتخاب است. هر دو دامنهٔ ساروی کار می‌کنند.
 
-برای دسته‌بندی از `classify` و `--labels billing technical other` استفاده کنید. برچسب نامعتبر مشخص می‌شود و برای اصلاح آن درخواست تازه‌ای مصرف نمی‌شود.
+فقط متن سلول‌های ستون انتخاب‌شده به ساروی و ارائه‌دهندهٔ مدل فرستاده می‌شود. اجرای واقعی اعتبار مصرف می‌کند. با فایل نمونه و سقف مصرف کوچک کلید یا پروژه شروع کنید؛ محدودیت توکن، سقف پولی نیست.
 
-با `--resume`، ردیف‌های کامل تکرار نمی‌شوند. اگر پاسخ یک درخواست نامعلوم باشد، ابزار می‌ایستد؛ فایل پیشرفت را نگه دارید و با `receipt.py` مصرف همان درخواست را بررسی کنید. نتیجهٔ خالی به معنی رایگان بودن درخواست نیست. یک فایل پیشرفت را هم‌زمان با دو پردازش باز نکنید.
+## دسته‌بندی پیام‌ها
 
-فایل اصلی بازنویسی نمی‌شود. خروجی می‌تواند اطلاعات خصوصی داشته باشد؛ آن را عمومی نکنید. [راهنمای کامل](README.md) · [اولین درخواست API](https://api.sarovi.site/developers/start?utm_source=github&utm_medium=organic&utm_campaign=developer_tools_202610&utm_content=sarovi-batch-tools_first_request_fa)
+```sh
+python3 batch.py classify samples/messages.csv \
+  --labels billing technical other --limit 5 \
+  --output labels.results.jsonl --run
+```
 
-آزمون‌ها با `python3 -m unittest -v test_batch.py` و بدون مصرف API اجرا می‌شوند. مجوز کد MIT است؛ هزینهٔ API جداست.
+برچسب برگشتی ثبت می‌شود. اگر یکی از برچسب‌های مجاز نباشد، `valid_label: false` خواهد بود؛ برای اصلاح آن درخواست تازه‌ای مصرف نمی‌شود. پیش از استفادهٔ خودکار از برچسب‌ها، نتیجهٔ مدل را بررسی کنید.
+
+## ادامهٔ پردازش
+
+همان دستور را با `--resume` اجرا کنید. ردیف‌های کامل تکرار نمی‌شوند و هش ورودی و تنظیمات مانع مخلوط شدن کارهای متفاوت می‌شود. پیش‌فرض پنج ردیف غیرخالی است؛ با `--limit` می‌توانید صریحاً تا ۱۰۰ ردیف انتخاب کنید.
+
+اگر نتیجهٔ یک درخواست نامعلوم باشد، اجرا و ادامه متوقف می‌شود. فایل پیشرفت را نگه دارید و مصرف همان درخواست را پیگیری کنید:
+
+```sh
+python3 receipt.py --idempotency-key=ORIGINAL_KEY
+```
+
+پیگیری به دسترسی `usage:read` نیاز دارد. نتیجهٔ خالی ثابت نمی‌کند درخواست قبلی رایگان بوده است. ارسال مجدد یا هزینهٔ بازیابی خودکار انجام نمی‌شود. هر بار فقط یک پردازش را روی یک فایل پیشرفت اجرا کنید.
+
+فایل پیشرفت حاوی خروجی تولیدشده است و ممکن است خصوصی باشد. فایل نمونه ساختگی است و CSV اصلی بازنویسی نمی‌شود. [نکته‌های API](docs/API-NOTES.md) را برای جزئیات هزینه، نگهداری داده و محدودیت پیگیری ببینید.
+
+## بررسی کد
+
+```sh
+python3 -m unittest -v test_batch.py
+```
+
+آزمون‌ها اجرای بدون شبکه، پیش‌نمایش محلی، رد تکرار ردیف کامل، تغییر ورودی، درخواست نامعلوم و محدودیت‌ها را بررسی می‌کنند؛ درخواست پولی ندارند.
+
+[نمونه‌کدهای بیشتر](https://github.com/sarovi-developers/sarovi-api-cookbook)
+
+کد با مجوز [MIT](LICENSE.fa.md) منتشر شده است؛ مصرف API جداگانه محاسبه می‌شود.
